@@ -1,11 +1,11 @@
 "use client"
 import { Box, Button, CheckboxIcon, Input, InputGroup, InputLeftElement, InputRightElement, Text, useDisclosure } from '@chakra-ui/react'
 import React, { useEffect, useMemo, useState } from 'react'
-import TableComponent from './table/Table'
+import TableComponent from '../components/Table'
 import { createColumnHelper } from '@tanstack/react-table'
 import { FaEdit } from 'react-icons/fa'
 import { LoadingStates, Product, PropsAxios, baseUrl } from "../types"
-import ModalUpdatePrice from './table/ModalUpdatePrice'
+import ModalUpdatePrice from '../components/ModalUpdatePrice'
 import { useDispatch, useSelector } from 'react-redux'
 import { getProducts as getProductsSelector , getSearchResults, getStatus } from '@/features/products/selector'
 import Loading from '@/components/Loading'
