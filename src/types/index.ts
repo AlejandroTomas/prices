@@ -24,14 +24,42 @@ export enum LoadingStates{
 export interface ProductState{
   status: LoadingStates,
   productos: Product[],
-  error: null | null,
+  error: string[] | null,
+  searchProduct: string | string[];
+  searchResults: Product[];
 }
 
 export interface PropsAxios {
   url:string, 
   configAxios:{
-    method: "GET" | "PUT" | "PUSH",
+    method: "GET" | "PUT" | "POST",
     headers: Record<string, string>
     body?:any
   }
+}
+
+export interface PropsToCreateOneProcut{
+  name: string;
+  type: string;
+  price: number;
+  img: "https://i.ibb.co/St69zhK/default.jpg";
+  quantityOnStock: number | 0;
+  unit:string;
+}
+
+export interface ProductDirty{
+  Nombre: string,
+  Tamaño: string,
+  Precio: string,
+  dressImage: string,
+  category: string,
+  state?: string,
+}
+
+export interface Error{
+  message: any
+}
+
+export interface JsonProps extends Product{
+  message?: any
 }

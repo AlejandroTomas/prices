@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import Modal from '@/components/Modal'
 import { Product } from '@/types'
-import { Input, Stack, Text } from '@chakra-ui/react'
+import { Box, Input, Stack, Text } from '@chakra-ui/react'
 import { baseUrl } from './page'
 import toast from 'react-hot-toast'
 import { useDispatch } from 'react-redux'
@@ -38,7 +38,10 @@ const ModalUpdatePrice = ({isOpen, onClose, productSelected}:Props) => {
         <Stack spacing={3}>
             <>
                 <Text>Producto</Text>
-                <Input placeholder='Product'size='lg' defaultValue={productSelected.name}/>
+                <Box display={"flex"} gap={3}>
+                    <Input  placeholder='Product'size='lg' defaultValue={productSelected.name}/>
+                    <Input placeholder='Product'size='lg' defaultValue={productSelected.unit}/>
+                </Box>
             </>
             <>
                 <Text>Precio</Text>

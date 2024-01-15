@@ -1,14 +1,43 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { LoadingStates, Product, ProductState, PropsAxios } from "../../types"
+import { JsonProps, LoadingStates, Product, ProductDirty, ProductState, PropsAxios, PropsToCreateOneProcut } from "../../types"
 import toast from "react-hot-toast";
 import { baseUrl } from "@/app/table/page";
+import PromisePool from "@supercharge/promise-pool";
 
 const initialState: ProductState = {
   status: LoadingStates.IDLE,
   productos: [],
   error: null,
+  searchProduct : "",
+  searchResults: []
 };
 
+export async function uploadAllProductsLogic(newProduct:ProductDirty){
+  try {
+    const data : PropsToCreateOneProcut = {
+      name:newProduct.Nombre,
+      price:Number(newProduct.Precio),
+      quantityOnStock:0,
+      type:newProduct.category,
+      unit:newProduct.Tamaño,
+      img:"https://i.ibb.co/St69zhK/default.jpg"
+    }
+    const url = `${baseUrl}/productos`;
+    const configAxios : PropsAxios["configAxios"] = {
+        method:"POST",
+        headers:{
+            "Content-Type": "application/json",
+        },
+        body:JSON.stringify(data)
+    }
+    const res = await fetch(url,configAxios);
+    let json : JsonProps = await res.json();
+    if(Object.prototype.hasOwnProperty.call(json,"message")) throw Error(json.message.message)
+    return json
+  } catch (error : any) {
+    return error.message
+  }
+}
 
 export const getProducts  = createAsyncThunk(
     "products/getProducts",
@@ -51,10 +80,41 @@ export const updatePriceProduct = createAsyncThunk(
   }
 )
 
+export const uploadAllProducts = createAsyncThunk(
+  "products/uploadAllProducts",
+  async ({products}:{products:ProductDirty[]}) =>{
+    const {results, errors} = await PromisePool.for(products)
+    .withConcurrency(10)
+    .onTaskFinished((user, pool) => {
+      // retrieve the percentage of processed tasks in the pool
+      toast(
+        `Cargando Productos al ${pool.processedPercentage().toFixed(0)}% `,
+        {
+          id: "loading",
+        }
+      );
+    })
+    .process(async (data)=>{
+      const response : Product = await uploadAllProductsLogic(data)
+      if(response._id === undefined){
+        throw response;
+      } 
+      return response;
+    })
+    return{
+      results,
+      errors
+    }
+  }
+)
 const productsSlice = createSlice({
   name: "products",
   initialState,
-  reducers:{},
+  reducers:{
+    setSearchProduct:(state, action)=>{
+      state.searchProduct = action.payload
+    }
+  },
   extraReducers(builder) {
     builder
     .addCase(getProducts.pending,(state)=>{
@@ -68,6 +128,7 @@ const productsSlice = createSlice({
       state.status = LoadingStates.REJECT
       console.log("No se pudo traer los productos")
     })
+
     builder
     .addCase(updatePriceProduct.pending,(state)=>{
       state.status = LoadingStates.LOADING
@@ -94,7 +155,26 @@ const productsSlice = createSlice({
       state.status = LoadingStates.REJECT
       console.log("No se pudo actualizar el precio")
     })
+
+    builder
+    .addCase(uploadAllProducts.pending,(state)=>{
+      state.status = LoadingStates.LOADING
+    })
+    .addCase(uploadAllProducts.fulfilled,(state, action)=>{
+      state.status = LoadingStates.SUCCEEDED
+      const {results , errors} = action.payload;
+      state.productos.concat(results);
+      state.error = errors.map((errPOOL)=>errPOOL.message)
+    })
+    .addCase(uploadAllProducts.rejected,(state, action)=>{
+      state.status = LoadingStates.REJECT
+      console.log("No se pudieron subir ninguno de los productos")
+    })
   },
 });
+
+export const {
+  setSearchProduct,
+} = productsSlice.actions;
 
 export default productsSlice.reducer;

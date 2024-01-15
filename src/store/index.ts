@@ -10,4 +10,8 @@ const logger = createLogger({
 
 export default configureStore({
   reducer: reducers,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 });
