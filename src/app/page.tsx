@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import TableComponent from './table/Table'
 import { createColumnHelper } from '@tanstack/react-table'
 import { FaEdit } from 'react-icons/fa'
-import { LoadingStates, Product, PropsAxios } from "../types"
+import { LoadingStates, Product, PropsAxios, baseUrl } from "../types"
 import ModalUpdatePrice from './table/ModalUpdatePrice'
 import { useDispatch, useSelector } from 'react-redux'
 import { getProducts as getProductsSelector , getSearchResults, getStatus } from '@/features/products/selector'
@@ -14,9 +14,6 @@ import productos from "../features/data/data"
 import _debounce from "lodash/debounce";
 import { IoMdClose } from 'react-icons/io'
 
-const local = false;
-
-export const baseUrl = local ? "http://localhost:5000" : "https://api-server-v2-production.up.railway.app"
 const columnHelper = createColumnHelper<Product>()
 
 const PageTable = () => {

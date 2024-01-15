@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { JsonProps, LoadingStates, Product, ProductDirty, ProductState, PropsAxios, PropsToCreateOneProcut } from "../../types"
+import { JsonProps, LoadingStates, Product, ProductDirty, ProductState, PropsAxios, PropsToCreateOneProcut, baseUrl } from "../../types"
 import toast from "react-hot-toast";
-import { baseUrl } from "@/app/page";
 import PromisePool from "@supercharge/promise-pool";
 
 const initialState: ProductState = {

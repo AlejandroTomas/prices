@@ -63,3 +63,5 @@ export interface Error{
 export interface JsonProps extends Product{
   message?: any
 }
+
+export const baseUrl = "https://api-server-v2-production.up.railway.app"
