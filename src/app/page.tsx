@@ -1,95 +1,126 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client"
+import { Box, Button, CheckboxIcon, Input, InputGroup, InputLeftElement, InputRightElement, Text, useDisclosure } from '@chakra-ui/react'
+import React, { useEffect, useMemo, useState } from 'react'
+import TableComponent from './table/Table'
+import { createColumnHelper } from '@tanstack/react-table'
+import { FaEdit } from 'react-icons/fa'
+import { LoadingStates, Product, PropsAxios } from "../types"
+import ModalUpdatePrice from './table/ModalUpdatePrice'
+import { useDispatch, useSelector } from 'react-redux'
+import { getProducts as getProductsSelector , getSearchResults, getStatus } from '@/features/products/selector'
+import Loading from '@/components/Loading'
+import { getProducts, setSearchProduct, uploadAllProducts, uploadAllProductsLogic } from '@/features/products/proeductsSlice'
+import productos from "../features/data/data"
+import _debounce from "lodash/debounce";
+import { IoMdClose } from 'react-icons/io'
 
-export default function Home() {
+const local = false;
+
+export const baseUrl = local ? "http://localhost:5000" : "https://api-server-v2-production.up.railway.app"
+const columnHelper = createColumnHelper<Product>()
+
+const PageTable = () => {
+  const {isOpen, onClose, onOpen} = useDisclosure();
+  const [search, setSearch] = useState<string>("")
+  const dispatch = useDispatch<any>();
+  // const [data, setData] = useState([])
+  const [productSelected, setProductSelected] = useState<Product | null>(null)
+  const data = useSelector(getProductsSelector)
+  const searchResults = useSelector(getSearchResults)
+  const columns = useMemo(
+    () =>[
+    columnHelper.accessor('name', {
+      cell: info => info.getValue(),
+      footer: info => info.column.id,
+    }),
+    columnHelper.accessor('unit', {
+      header: () => 'Cantidad',
+      cell: info => info.renderValue(),
+      footer: info => info.column.id,
+    }),
+    columnHelper.accessor('price', {
+      header: () => 'Price',
+      cell: info => info.renderValue(),
+      footer: info => info.column.id,
+    }),
+    columnHelper.accessor(row => row, {
+      id:"all",
+      cell(props) {
+        const value : Product = props.getValue()
+        return <Box
+                  cursor={"pointer"}
+                  onClick={()=>{
+                    setProductSelected(value)
+                    onOpen();
+                  }}
+                  display={"flex"}
+                >
+                  <Text mr={"1rem"}>Editar</Text> <FaEdit />
+                </Box> 
+      },
+    footer: info => "id" 
+    })
+  ],[data])
+  useEffect(() => {
+    dispatch(getProducts({
+      url :`${baseUrl}/productos`,  
+      configAxios: {
+        method:"GET",
+        headers:{
+          "Content-Type": "application/json",
+        },
+      }
+    }))
+  }, [])
+
+  const debounceSearch = _debounce((value: string) => {
+    setSearch(value);
+    dispatch(setSearchProduct(value));
+  }, 500);
+
+  const handleSearch = (e: any) => {
+    debounceSearch(e.target.value);
+    return e;
+  };
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
+    <Box p={"2rem"}>
+       <InputGroup mb={"2rem"}>
+        <Input  
+          placeholder='Buscar Producto' 
+          size='lg'
+          onChange={handleSearch}
         />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
+        <InputRightElement
+          onClick={()=>setSearch("")}
+          cursor={"pointer"}
+          top={"8%"}
         >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
+          <IoMdClose />
+        </InputRightElement>
+      </InputGroup>
+        {
+          data.length === 0 
+          ?<Loading/>
+          :<TableComponent data={!(search === "") ? searchResults : data} columns={columns}/>
+        }
+        
+        {
+           productSelected !== null && (
+            <ModalUpdatePrice isOpen={isOpen} onClose={onClose} productSelected={productSelected} />
+           )   
+        }
+        {/* <Button
+          onClick={()=>{
+            dispatch(uploadAllProducts({
+              products:productos
+            }))
+          }}
         >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+          Crear producto
+        </Button> */}
+    </Box>
   )
 }
+
+export default PageTable

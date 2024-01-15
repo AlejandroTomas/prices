@@ -17,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={fonts.rubik.variable} style={{fontSize:"18px"}}>
+    <html lang="en" className={fonts.rubik.variable} style={{fontSize:"23px"}}>
       <body className={inter.className}>
         <Providers>
           {children}
