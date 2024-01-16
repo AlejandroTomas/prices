@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { JsonProps, LoadingStates, Product, ProductDirty, ProductState, PropsAxios, PropsToCreateOneProcut, baseUrl } from "../../types"
+import { CreateProduct, JsonProps, LoadingStates, Product, ProductDirty, ProductState, PropsAxios, PropsToCreateOneProcut, baseUrl } from "../../types"
 import toast from "react-hot-toast";
 import PromisePool from "@supercharge/promise-pool";
 
@@ -79,6 +79,39 @@ export const updatePriceProduct = createAsyncThunk(
   }
 )
 
+
+export const createProduct = createAsyncThunk(
+  "product/createProcut",
+  async ({price, name, unit}:CreateProduct) =>{
+    try {
+      const data : CreateProduct  = {
+        name,
+        type:"nuevo",
+        price,
+        img: "https://i.ibb.co/St69zhK/default.jpg",
+        quantityOnStock:0,
+        unit
+      }
+      const url = `${baseUrl}/productos`;
+      const configAxios = {
+          method:"POST",
+          headers:{
+              "Content-Type": "application/json",
+          },
+          body:JSON.stringify(data)
+      }
+      const res = await fetch(url,configAxios);
+      let json = await res.json();
+      if(Object.prototype.hasOwnProperty.call(json,"message")) throw Error(json.message.message)
+      return {
+        response : json,
+      };
+  } catch (error) {
+    console.log(error)
+  }
+  }
+)
+
 export const uploadAllProducts = createAsyncThunk(
   "products/uploadAllProducts",
   async ({products}:{products:ProductDirty[]}) =>{
@@ -120,7 +153,7 @@ const productsSlice = createSlice({
       state.status = LoadingStates.LOADING
     })
     .addCase(getProducts.fulfilled,(state, action)=>{
-      state.status = LoadingStates.SUCCEEDED
+      state.status = LoadingStates.IDLE
       state.productos = action.payload;
     })
     .addCase(getProducts.rejected,(state, action)=>{
@@ -139,7 +172,7 @@ const productsSlice = createSlice({
       if(payload !== undefined){
         const index = state.productos.findIndex((product)=>product._id === payload.newProduct._id )
         if(index !== -1){
-          state.productos[index].price = payload.newProduct.price
+          state.productos[index] = payload.newProduct
           toast.success("Precio Actualizado")
         }else{
           toast.error("No se pudo actualizar el precio")
@@ -167,6 +200,24 @@ const productsSlice = createSlice({
     })
     .addCase(uploadAllProducts.rejected,(state, action)=>{
       state.status = LoadingStates.REJECT
+      console.log("No se pudieron subir ninguno de los productos")
+    })
+
+    builder
+    .addCase(createProduct.pending,(state)=>{
+      state.status = LoadingStates.LOADING
+    })
+    .addCase(createProduct.fulfilled,(state, action)=>{
+      state.status = LoadingStates.SUCCEEDED
+      const product = action.payload?.response;
+      if(product !== undefined){
+        state.productos.push(product)
+        toast.success("Producto Creado")
+      }
+    })
+    .addCase(createProduct.rejected,(state, action)=>{
+      state.status = LoadingStates.REJECT
+      toast.error("Producto no Creado")
       console.log("No se pudieron subir ninguno de los productos")
     })
   },

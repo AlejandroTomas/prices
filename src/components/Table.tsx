@@ -57,7 +57,12 @@ function TableComponent({fullHeight = true, data, columns, loading = false }:Pro
         </Thead>
         <Tbody>
           {table.getRowModel().rows.map(row => (
-            <Tr key={row.id}>
+            <Tr 
+              key={row.id}
+              bg={
+                (row.original.__v !== 0 ? "#35e65e" : null) as any
+              }
+            >
               {row.getVisibleCells().map(cell => (
                 <Td key={cell.id} p={"1rem 0"}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}

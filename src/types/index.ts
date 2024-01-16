@@ -64,4 +64,13 @@ export interface JsonProps extends Product{
   message?: any
 }
 
-export const baseUrl = "https://api-server-v2-production.up.railway.app"
+export interface CreateProduct{
+  name:string,
+  type:string,
+  price:number,
+  img?:"https://i.ibb.co/St69zhK/default.jpg",
+  quantityOnStock?:number,
+  unit?:string
+}
+
+export const baseUrl = "http://localhost:5000" // "https://api-server-v2-production.up.railway.app"

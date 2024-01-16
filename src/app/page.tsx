@@ -1,6 +1,6 @@
 "use client"
-import { Box, Button, CheckboxIcon, Input, InputGroup, InputLeftElement, InputRightElement, Text, useDisclosure } from '@chakra-ui/react'
-import React, { useEffect, useMemo, useState } from 'react'
+import { Box, Button, CheckboxIcon, HStack, Input, InputGroup, InputLeftElement, InputRightElement, Text, useDisclosure } from '@chakra-ui/react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import TableComponent from '../components/Table'
 import { createColumnHelper } from '@tanstack/react-table'
 import { FaEdit } from 'react-icons/fa'
@@ -13,17 +13,21 @@ import { getProducts, setSearchProduct, uploadAllProducts, uploadAllProductsLogi
 import productos from "../features/data/data"
 import _debounce from "lodash/debounce";
 import { IoMdClose } from 'react-icons/io'
+import { MdOutlineCreateNewFolder } from 'react-icons/md'
+import ModalCreateProduct from '@/components/ModalCreateProduct'
 
 const columnHelper = createColumnHelper<Product>()
 
 const PageTable = () => {
   const {isOpen, onClose, onOpen} = useDisclosure();
+  const createProductDisclosure = useDisclosure();
   const [search, setSearch] = useState<string>("")
   const dispatch = useDispatch<any>();
   // const [data, setData] = useState([])
   const [productSelected, setProductSelected] = useState<Product | null>(null)
   const data = useSelector(getProductsSelector)
   const searchResults = useSelector(getSearchResults)
+  
   const columns = useMemo(
     () =>[
     columnHelper.accessor('name', {
@@ -79,23 +83,40 @@ const PageTable = () => {
     debounceSearch(e.target.value);
     return e;
   };
-
+  const ref = useRef(null)
   return (
     <Box p={"2rem"}>
-       <InputGroup mb={"2rem"}>
-        <Input  
-          placeholder='Buscar Producto' 
-          size='lg'
-          onChange={handleSearch}
-        />
-        <InputRightElement
-          onClick={()=>setSearch("")}
-          cursor={"pointer"}
-          top={"8%"}
+      <Box display={"flex"}>
+        <InputGroup mb={"2rem"}>
+          <Input  
+            ref={ref}
+            placeholder='Buscar Producto' 
+            size='lg'
+            onChange={handleSearch}
+          />
+          <InputRightElement
+            onClick={()=>{
+              const input : any = ref.current
+              if(input !== null){
+                input.value = "";
+              }
+              setSearch("")
+            }
+          }
+            cursor={"pointer"}
+            top={"8%"}
+          >
+            <IoMdClose />
+          </InputRightElement>
+        </InputGroup>
+        <Button ml={"1rem"}
+          onClick={()=>{
+            createProductDisclosure.onOpen()
+          }}
         >
-          <IoMdClose />
-        </InputRightElement>
-      </InputGroup>
+          <MdOutlineCreateNewFolder fontSize={"1.5rem"}/>
+        </Button>
+      </Box>
         {
           data.length === 0 
           ?<Loading/>
@@ -107,15 +128,7 @@ const PageTable = () => {
             <ModalUpdatePrice isOpen={isOpen} onClose={onClose} productSelected={productSelected} />
            )   
         }
-        {/* <Button
-          onClick={()=>{
-            dispatch(uploadAllProducts({
-              products:productos
-            }))
-          }}
-        >
-          Crear producto
-        </Button> */}
+        <ModalCreateProduct isOpen={createProductDisclosure.isOpen} onClose={createProductDisclosure.onClose}/>
     </Box>
   )
 }

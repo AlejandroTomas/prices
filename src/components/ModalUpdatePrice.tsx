@@ -1,11 +1,12 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Modal from '@/components/Modal'
-import { Product } from '@/types'
+import { LoadingStates, Product } from '@/types'
 import { Box, Input, Stack, Text } from '@chakra-ui/react'
 import toast from 'react-hot-toast'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { updatePriceProduct } from '@/features/products/proeductsSlice'
+import { getStatus } from '@/features/products/selector'
 
 // async function updatePriceProduct(newProduct:Product){
 //     const data = {
@@ -22,17 +23,27 @@ interface Props {
 const ModalUpdatePrice = ({isOpen, onClose, productSelected}:Props) => {
   const [price, setPrice] = useState(productSelected.price)
   const dispatch = useDispatch<any>()
+  const state = useSelector(getStatus)
   const hanldeUpdatePriceProduct = (newProduct:Product)=>{
     dispatch(updatePriceProduct({newProduct}))
-    onClose();
+    
   }
+  useEffect(() => {
+    setPrice(productSelected.price)
+  }, [productSelected])
+  
+  useEffect(() => {
+    if(state === LoadingStates.SUCCEEDED){
+        onClose();
+    }
+  }, [state])
   return (
     <Modal
         isOpen={isOpen}
         onClose={onClose}
-        title='Modal Standard'
+        title='Actualizar Precio'
         size='xl'
-        onSubmit={()=>hanldeUpdatePriceProduct({...productSelected, price})}
+        onSubmit={()=>hanldeUpdatePriceProduct({...productSelected, price,__v:(productSelected.__v + 1)})}
     >
         <Stack spacing={3}>
             <>
