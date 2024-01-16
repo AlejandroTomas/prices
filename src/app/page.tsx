@@ -1,5 +1,5 @@
 "use client"
-import { Box, Button, CheckboxIcon, HStack, Input, InputGroup, InputLeftElement, InputRightElement, Text, useDisclosure } from '@chakra-ui/react'
+import { Box, Button, CheckboxIcon, HStack, Input, InputGroup, InputLeftElement, InputRightElement, Text, useDisclosure, useMediaQuery } from '@chakra-ui/react'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import TableComponent from '../components/Table'
 import { createColumnHelper } from '@tanstack/react-table'
@@ -28,7 +28,7 @@ const PageTable = () => {
   const [productSelected, setProductSelected] = useState<Product | null>(null)
   const data = useSelector(getProductsSelector)
   const searchResults = useSelector(getSearchResults)
-  
+  const [mediaQuery] = useMediaQuery('(max-width: 540px)')
   const columns = useMemo(
     () =>[
     columnHelper.accessor('name', {
@@ -89,6 +89,8 @@ const PageTable = () => {
     setProductSelected(val)
     onOpen();
   }
+
+
   return (
     <Box p={["1rem", "2rem"]}>
       <Box display={"flex"}>
@@ -126,23 +128,25 @@ const PageTable = () => {
           data.length === 0 
           ?<Loading display={["none", "block"]}/>
           :
+          !mediaQuery && (
           <Box display={["none", "block"]}>
             <TableComponent data={!(search === "") ? searchResults : data} columns={columns}/>
           </Box>
+          )
         }
         {
           data.length === 0 
-          ?<Loading/>
+          ?<Loading display={["block", "none"]}/>
           :
-          <MobileTable items={!(search === "") ? searchResults : data} onClick={handleOpenMobileModal}/>
+          mediaQuery && <MobileTable items={!(search === "") ? searchResults : data} onClick={handleOpenMobileModal}/>
           
         }
         {
            productSelected !== null && (
-            <ModalUpdatePrice isOpen={isOpen} onClose={onClose} productSelected={productSelected} />
+            <ModalUpdatePrice key={"modal-update"} isOpen={isOpen} onClose={onClose} productSelected={productSelected} />
            )   
         }
-        <ModalCreateProduct isOpen={createProductDisclosure.isOpen} onClose={createProductDisclosure.onClose}/>
+        <ModalCreateProduct key={"modal-create-product"} isOpen={createProductDisclosure.isOpen} onClose={createProductDisclosure.onClose}/>
     </Box>
   )
 }

@@ -1,8 +1,15 @@
 import { Product } from '@/types';
 import { Box, Button, HStack, Heading, Text, VStack } from '@chakra-ui/react';
-import React from 'react'
+import React, { useEffect } from 'react'
 
 const MobileTable = ({items, onClick}:{items:Product[], onClick:(par:any)=>void}) => {
+    useEffect(() => {
+        console.log("renderizado desde table mobiel", items)
+    
+      return () => {
+        
+      }
+    }, [])
   return (
     <Box display={["block", "none"]}>
         {

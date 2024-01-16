@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-table'
 import { Box, Table, Tbody, Td, Tfoot, Th, Thead, Tr, chakra } from '@chakra-ui/react'
 import Loading from '@/components/Loading';
+import { useEffect } from 'react';
 
 interface Props{
   fullHeight? : boolean, 
