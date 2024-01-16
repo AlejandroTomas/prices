@@ -15,6 +15,7 @@ import _debounce from "lodash/debounce";
 import { IoMdClose } from 'react-icons/io'
 import { MdOutlineCreateNewFolder } from 'react-icons/md'
 import ModalCreateProduct from '@/components/ModalCreateProduct'
+import MobileTable from '@/components/mobileTable'
 
 const columnHelper = createColumnHelper<Product>()
 
@@ -84,8 +85,12 @@ const PageTable = () => {
     return e;
   };
   const ref = useRef(null)
+  const handleOpenMobileModal = (val:Product) => {
+    setProductSelected(val)
+    onOpen();
+  }
   return (
-    <Box p={"2rem"}>
+    <Box p={["1rem", "2rem"]}>
       <Box display={"flex"}>
         <InputGroup mb={"2rem"}>
           <Input  
@@ -119,10 +124,19 @@ const PageTable = () => {
       </Box>
         {
           data.length === 0 
-          ?<Loading/>
-          :<TableComponent data={!(search === "") ? searchResults : data} columns={columns}/>
+          ?<Loading display={["none", "block"]}/>
+          :
+          <Box display={["none", "block"]}>
+            <TableComponent data={!(search === "") ? searchResults : data} columns={columns}/>
+          </Box>
         }
-        
+        {
+          data.length === 0 
+          ?<Loading/>
+          :
+          <MobileTable items={!(search === "") ? searchResults : data} onClick={handleOpenMobileModal}/>
+          
+        }
         {
            productSelected !== null && (
             <ModalUpdatePrice isOpen={isOpen} onClose={onClose} productSelected={productSelected} />
