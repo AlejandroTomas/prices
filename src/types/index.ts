@@ -73,4 +73,4 @@ export interface CreateProduct{
   unit?:string
 }
 
-export const baseUrl = "https://api-server-v2-production.up.railway.app" //"http://localhost:5000"
+export const baseUrl = "https://api-miscellany.onrender.com" // "https://api-server-v2-production.up.railway.app" //"http://localhost:5000"

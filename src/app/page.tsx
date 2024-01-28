@@ -9,7 +9,7 @@ import ModalUpdatePrice from '../components/ModalUpdatePrice'
 import { useDispatch, useSelector } from 'react-redux'
 import { getProducts as getProductsSelector , getSearchResults, getStatus } from '@/features/products/selector'
 import Loading from '@/components/Loading'
-import { getProducts, setSearchProduct, uploadAllProducts, uploadAllProductsLogic } from '@/features/products/proeductsSlice'
+import { getProducts, setProductsFromLocalStorage, setSearchProduct, uploadAllProducts, uploadAllProductsLogic } from '@/features/products/proeductsSlice'
 import productos from "../features/data/data"
 import _debounce from "lodash/debounce";
 import { IoMdClose } from 'react-icons/io'
@@ -74,6 +74,45 @@ const PageTable = () => {
       }
     }))
   }, [])
+
+  useEffect(() => {
+    let dateCurrent = new Date().toLocaleDateString();
+    if(window.localStorage.getItem("dateHandler")){
+    // console.log("existe el manejador ")
+      if(window.localStorage.getItem("dateHandler") != dateCurrent){
+        console.log("la fecha es diferente de la de ayer")
+        // se obtienen los datos ahora dentro del dispathc tenemos que hacer la logica de poner los
+        // datos en el local storage
+        dispatch(getProducts({
+          url :`${baseUrl}/productos`,  
+          configAxios: {
+            method:"GET",
+            headers:{
+              "Content-Type": "application/json",
+            },
+          }
+        }))
+        window.localStorage.setItem("dateHandler",dateCurrent)
+      }else{
+        // console.log("data from localStorage")
+        dispatch(setProductsFromLocalStorage())
+      }
+      // setDataLoaded(true)
+    }else{
+      console.log("no existe le manejador y se crea agregando la data")
+      dispatch(getProducts({
+        url :`${baseUrl}/productos`,  
+        configAxios: {
+          method:"GET",
+          headers:{
+            "Content-Type": "application/json",
+          },
+        }
+      }))
+      window.localStorage.setItem("dateHandler",dateCurrent)
+    }
+    //http://localhost:5000/productos/frontpage
+  }, []);
 
   const debounceSearch = _debounce((value: string) => {
     setSearch(value);

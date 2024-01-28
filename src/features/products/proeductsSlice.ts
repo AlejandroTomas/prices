@@ -45,6 +45,7 @@ async ({url, configAxios }:PropsAxios) => {
         const res = await fetch(url,configAxios);
         let json = await res.json();
         if(!res.ok) throw {status:res.status,statusText:res.statusText}; //Capturar el error
+        window.localStorage.setItem("dateProducts",JSON.stringify(json))
         return json;
     } catch (err : any) {
         let message= err.statusText || "Ocurrio un error";
@@ -145,6 +146,15 @@ const productsSlice = createSlice({
   reducers:{
     setSearchProduct:(state, action)=>{
       state.searchProduct = action.payload
+    },
+    setProductsFromLocalStorage:(state):any=>{
+      const dataFromLocalStorage = window.localStorage.getItem("dateProducts")
+      if(dataFromLocalStorage === null)return toast.error("No se encontro datos desde el localStorage",{duration:4000})
+      if(typeof dataFromLocalStorage === "string"){
+        const dataJSON :Product[] = JSON.parse(dataFromLocalStorage) 
+        if(dataJSON.length === 0)return toast.error("No se encontro datos desde el localStorage",{duration:4000})
+        state.productos = dataJSON;
+      }
     }
   },
   extraReducers(builder) {
@@ -225,6 +235,7 @@ const productsSlice = createSlice({
 
 export const {
   setSearchProduct,
+  setProductsFromLocalStorage
 } = productsSlice.actions;
 
 export default productsSlice.reducer;
