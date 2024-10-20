@@ -62,6 +62,21 @@ const ProductUpdateForm = () => {
     unit: "",
     ean: "",
   });
+
+  const resetForm = () => {
+    setProduct(null);
+    setFormData({
+      name: "",
+      price: 0,
+      priceOffert: 0,
+      type: "",
+      quantityOnStock: 0,
+      onStock: false,
+      tag: "",
+      unit: "",
+      ean: "",
+    });
+  };
   const dispatch = useDispatch<any>();
 
   // Función para manejar cambios en el formulario
@@ -81,17 +96,16 @@ const ProductUpdateForm = () => {
   const { executeAsync, isLoading } = useAsyncLoader();
 
   const updateProductFn = async () => {
-    try {
-      if (product == null) return;
-      const productUpdated: any = Object.assign(
-        structuredClone(product),
-        formData
-      );
-      // actualizar en local
-      dispatch(updateProduct(productUpdated));
-      // actualizar en permanete
-      await updateProductInDB(productUpdated);
-    } catch (error) {}
+    if (product == null) return;
+    const productUpdated: any = Object.assign(
+      structuredClone(product),
+      formData
+    );
+    // actualizar en local
+    dispatch(updateProduct(productUpdated));
+    // actualizar en permanete
+    await updateProductInDB(productUpdated);
+    resetForm();
   };
 
   const handleUpdateProduct = () => {

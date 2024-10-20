@@ -101,7 +101,7 @@ const ModalCreateProduct = ({ isOpen, onClose }: Props) => {
         <Box>
           <Text>Codigo de barras</Text>
           <Input
-            placeholder="Precio"
+            placeholder="Codigo de barras"
             size="lg"
             name="ean"
             onChange={(e) => {

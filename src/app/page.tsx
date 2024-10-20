@@ -2,32 +2,20 @@
 import {
   Box,
   Flex,
-  Skeleton,
   Tab,
   TabList,
   TabPanel,
   TabPanels,
   Tabs,
   Text,
-  useDisclosure,
   useToast,
 } from "@chakra-ui/react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { createColumnHelper } from "@tanstack/react-table";
 import { Product } from "../types";
-import ModalUpdatePrice from "../components/ModalUpdatePrice";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getMapEan,
-  getProducts as getProductsSelector,
-  getSearchResults,
-} from "@/features/products/selector";
-import {
-  getProducts,
-  setSearchProduct,
-} from "@/features/products/proeductsSlice";
+import { getMapEan } from "@/features/products/selector";
+import { getProducts } from "@/features/products/proeductsSlice";
 import _debounce from "lodash/debounce";
-import InputSearch from "@/components/InputSearch";
 import ProductUpdateForm from "@/components/ProductUpdateForm";
 
 const PageTable = () => {

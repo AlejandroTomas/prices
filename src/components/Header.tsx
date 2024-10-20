@@ -21,10 +21,13 @@ import { IoIosMenu, IoMdClose } from "react-icons/io";
 import { MdOutlineCreateNewFolder } from "react-icons/md";
 import ModalCreateProduct from "./ModalCreateProduct";
 import { baseUrl } from "@/types";
-import { addProductToDB } from "@/functions/idb";
+import { addProductToDB, getAllProductsFromDB } from "@/functions/idb";
 import toast from "react-hot-toast";
 import useAsyncLoader from "@/hooks/useAsyncLoader";
 import LoaderFullScreen from "./LoaderFullScreen";
+import { RiFileExcel2Fill } from "react-icons/ri";
+import { createFileExcel } from "@/functions/createFileExcel";
+import { GrDocumentExcel } from "react-icons/gr";
 
 const Header = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
@@ -48,6 +51,11 @@ const Header = () => {
       errorMessage: "No se pudieron cargar los datos",
     });
   };
+  const handleDownloadFile = async () => {
+    const products = await getAllProductsFromDB();
+    createFileExcel(products, "Inventario");
+  };
+
   return (
     <Flex gap={5} p={3} justifyContent={"space-between"}>
       {isLoading && <LoaderFullScreen />}
@@ -61,6 +69,16 @@ const Header = () => {
         <MenuList>
           <MenuItem icon={<FaDatabase />} command="⌘T" onClick={handleClick}>
             Traer DB
+          </MenuItem>
+          <MenuItem
+            icon={<RiFileExcel2Fill />}
+            command="⌘T"
+            onClick={handleDownloadFile}
+          >
+            Generar Excel
+          </MenuItem>
+          <MenuItem icon={<GrDocumentExcel />} command="⌘T" isDisabled>
+            Subir Excel
           </MenuItem>
         </MenuList>
       </Menu>
