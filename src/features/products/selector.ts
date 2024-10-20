@@ -3,17 +3,17 @@ import { createAsyncSelectorResults } from "async-selector-kit";
 import { RootState } from "@/store/reducers";
 import { Product, ProductState } from "@/types";
 
-
 const productsSelector = (state: RootState) => state.products;
 
 export const getStatus = createSelector(
-    productsSelector,
-    (state: ProductState): ProductState["status"] => state.status
+  productsSelector,
+  (state: ProductState): ProductState["status"] => state.status
 );
 
 const productsListSelector = (state: RootState) => state.products.productos;
 
-const productSearchSelector = (state: RootState) => state.products.searchProduct;
+const productSearchSelector = (state: RootState) =>
+  state.products.searchProduct;
 
 export const getProducts = createSelector(
   productsSelector,
@@ -36,15 +36,11 @@ function isArrayOfStrings(parametro: string | string[]): boolean {
 function searchProduct(searchTerm: string, products: Product[]): Product[] {
   const trimmedSearchTerm = searchTerm.trim();
   let result: Product[] = [];
-    result = products.filter((product) =>
-      product.name
-        .toLowerCase()
-        .includes(trimmedSearchTerm.toLowerCase())
-        ||
-        product.type
-        .toLowerCase()
-        .includes(trimmedSearchTerm.toLowerCase())
-    );
+  result = products.filter(
+    (product) =>
+      product.name.toLowerCase().includes(trimmedSearchTerm.toLowerCase()) ||
+      product.type.toLowerCase().includes(trimmedSearchTerm.toLowerCase())
+  );
   return result;
 }
 
@@ -64,4 +60,21 @@ export const getSearchResults = createSelector(
     }
     return response;
   }
+);
+
+function createEanMap(products: Product[]) {
+  const eanMap = new Map<string, Product>();
+
+  for (const product of products) {
+    if (product.ean != null && product.ean !== "") {
+      eanMap.set(product.ean, product);
+    }
+  }
+
+  return eanMap;
+}
+
+export const getMapEan = createSelector(
+  productsSelector,
+  (state: ProductState) => createEanMap(state.productos)
 );

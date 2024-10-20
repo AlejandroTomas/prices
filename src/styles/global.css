@@ -1,0 +1,35 @@
+/* Container for the input */
+.chakra-input-container {
+  width: 100%;
+  max-width: 400px;
+}
+
+/* Chakra UI Input styles */
+.chakra-input {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 0.8rem;
+  border-radius: 0.375rem; /* Rounded corners */
+  border: 1px solid #e2e8f0; /* Light border similar to Chakra */
+  background-color: white;
+  box-shadow: 0 0 0 1px transparent;
+  outline: none;
+  color: #2d3748; /* Chakra UI text color */
+}
+
+/* On focus (like Chakra UI) */
+.chakra-input:focus {
+  border-color: #3182ce; /* Blue border on focus */
+  box-shadow: 0 0 0 1px #3182ce; /* Blue outline on focus */
+}
+
+/* Placeholder styling */
+.chakra-input::placeholder {
+  color: #a0aec0; /* Chakra UI placeholder color */
+  opacity: 1;
+}
+
+/* Hover state */
+.chakra-input:hover {
+  border-color: #cbd5e0; /* Slightly darker border on hover */
+}

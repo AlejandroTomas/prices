@@ -1,193 +1,133 @@
-"use client"
-import { Box, Button, CheckboxIcon, HStack, Input, InputGroup, InputLeftElement, InputRightElement, Text, useDisclosure, useMediaQuery } from '@chakra-ui/react'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
-import TableComponent from '../components/Table'
-import { createColumnHelper } from '@tanstack/react-table'
-import { FaEdit } from 'react-icons/fa'
-import { LoadingStates, Product, PropsAxios, baseUrl } from "../types"
-import ModalUpdatePrice from '../components/ModalUpdatePrice'
-import { useDispatch, useSelector } from 'react-redux'
-import { getProducts as getProductsSelector , getSearchResults, getStatus } from '@/features/products/selector'
-import Loading from '@/components/Loading'
-import { getProducts, setProductsFromLocalStorage, setSearchProduct, uploadAllProducts, uploadAllProductsLogic } from '@/features/products/proeductsSlice'
-import productos from "../features/data/data"
+"use client";
+import {
+  Box,
+  Flex,
+  Skeleton,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
+  useDisclosure,
+  useToast,
+} from "@chakra-ui/react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { createColumnHelper } from "@tanstack/react-table";
+import { Product } from "../types";
+import ModalUpdatePrice from "../components/ModalUpdatePrice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getMapEan,
+  getProducts as getProductsSelector,
+  getSearchResults,
+} from "@/features/products/selector";
+import {
+  getProducts,
+  setSearchProduct,
+} from "@/features/products/proeductsSlice";
 import _debounce from "lodash/debounce";
-import { IoMdClose } from 'react-icons/io'
-import { MdOutlineCreateNewFolder } from 'react-icons/md'
-import ModalCreateProduct from '@/components/ModalCreateProduct'
-import MobileTable from '@/components/mobileTable'
-
-const columnHelper = createColumnHelper<Product>()
+import InputSearch from "@/components/InputSearch";
+import ProductUpdateForm from "@/components/ProductUpdateForm";
 
 const PageTable = () => {
-  const {isOpen, onClose, onOpen} = useDisclosure();
-  const createProductDisclosure = useDisclosure();
-  const [search, setSearch] = useState<string>("")
+  const [barcode, setBarcode] = useState("");
+  const [product, setProduct] = useState<Product | null>(null);
   const dispatch = useDispatch<any>();
-  // const [data, setData] = useState([])
-  const [productSelected, setProductSelected] = useState<Product | null>(null)
-  const data = useSelector(getProductsSelector)
-  const searchResults = useSelector(getSearchResults)
-  const [mediaQuery] = useMediaQuery('(max-width: 540px)')
-  const columns = useMemo(
-    () =>[
-    columnHelper.accessor('name', {
-      cell: info => info.getValue(),
-      footer: info => info.column.id,
-    }),
-    columnHelper.accessor('unit', {
-      header: () => 'Cantidad',
-      cell: info => info.renderValue(),
-      footer: info => info.column.id,
-    }),
-    columnHelper.accessor('price', {
-      header: () => 'Price',
-      cell: info => info.renderValue(),
-      footer: info => info.column.id,
-    }),
-    columnHelper.accessor(row => row, {
-      id:"all",
-      cell(props) {
-        const value : Product = props.getValue()
-        return <Box
-                  cursor={"pointer"}
-                  onClick={()=>{
-                    setProductSelected(value)
-                    onOpen();
-                  }}
-                  display={"flex"}
-                >
-                  <Text mr={"1rem"}>Editar</Text> <FaEdit />
-                </Box> 
-      },
-    footer: info => "id" 
-    })
-  ],[data])
-  useEffect(() => {
-    dispatch(getProducts({
-      url :`${baseUrl}/productos`,  
-      configAxios: {
-        method:"GET",
-        headers:{
-          "Content-Type": "application/json",
-        },
-      }
-    }))
-  }, [])
+  const eansData = useSelector(getMapEan);
+  const toast = useToast();
+  const ref = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    let dateCurrent = new Date().toLocaleDateString();
-    if(window.localStorage.getItem("dateHandler")){
-    // console.log("existe el manejador ")
-      if(window.localStorage.getItem("dateHandler") != dateCurrent){
-        console.log("la fecha es diferente de la de ayer")
-        // se obtienen los datos ahora dentro del dispathc tenemos que hacer la logica de poner los
-        // datos en el local storage
-        dispatch(getProducts({
-          url :`${baseUrl}/productos`,  
-          configAxios: {
-            method:"GET",
-            headers:{
-              "Content-Type": "application/json",
-            },
-          }
-        }))
-        window.localStorage.setItem("dateHandler",dateCurrent)
-      }else{
-        // console.log("data from localStorage")
-        dispatch(setProductsFromLocalStorage())
-      }
-      // setDataLoaded(true)
-    }else{
-      console.log("no existe le manejador y se crea agregando la data")
-      dispatch(getProducts({
-        url :`${baseUrl}/productos`,  
-        configAxios: {
-          method:"GET",
-          headers:{
-            "Content-Type": "application/json",
-          },
-        }
-      }))
-      window.localStorage.setItem("dateHandler",dateCurrent)
+  const handleChange = useCallback(
+    _debounce((value) => {
+      setBarcode(value);
+    }, 300), // 300ms debounce, ajustable según sea necesario
+    []
+  );
+
+  const handleScan = (barcode: string) => {
+    try {
+      const value = eansData.get(barcode);
+      if (value === undefined) throw new Error("Código no encontrado");
+      setProduct(value);
+      ref.current?.focus();
+    } catch (error: any) {
+      toast({
+        title: "ERROR",
+        description: error.message,
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+        position: "top-left",
+      });
     }
-    //http://localhost:5000/productos/frontpage
-  }, []);
-
-  const debounceSearch = _debounce((value: string) => {
-    setSearch(value);
-    dispatch(setSearchProduct(value));
-  }, 500);
-
-  const handleSearch = (e: any) => {
-    debounceSearch(e.target.value);
-    return e;
   };
-  const ref = useRef(null)
-  const handleOpenMobileModal = (val:Product) => {
-    setProductSelected(val)
-    onOpen();
-  }
-
-
+  useEffect(() => {
+    ref.current?.focus();
+    dispatch(getProducts());
+  }, []);
+  const isLoaded = product != null;
   return (
-    <Box p={["1rem", "2rem"]}>
-      <Box display={"flex"}>
-        <InputGroup mb={"2rem"}>
-          <Input  
-            ref={ref}
-            placeholder='Buscar Producto' 
-            size='lg'
-            onChange={handleSearch}
-          />
-          <InputRightElement
-            onClick={()=>{
-              const input : any = ref.current
-              if(input !== null){
-                input.value = "";
-              }
-              setSearch("")
-            }
-          }
-            cursor={"pointer"}
-            top={"8%"}
-          >
-            <IoMdClose />
-          </InputRightElement>
-        </InputGroup>
-        <Button ml={"1rem"}
-          onClick={()=>{
-            createProductDisclosure.onOpen()
-          }}
-        >
-          <MdOutlineCreateNewFolder fontSize={"1.5rem"}/>
-        </Button>
-      </Box>
-        {
-          data.length === 0 
-          ?<Loading display={["none", "block"]}/>
-          :
-          !mediaQuery && (
-          <Box display={["none", "block"]}>
-            <TableComponent data={!(search === "") ? searchResults : data} columns={columns}/>
-          </Box>
-          )
-        }
-        {
-          data.length === 0 
-          ?<Loading display={["block", "none"]}/>
-          :
-          mediaQuery && <MobileTable items={!(search === "") ? searchResults : data} onClick={handleOpenMobileModal}/>
-          
-        }
-        {
-           productSelected !== null && (
-            <ModalUpdatePrice key={"modal-update"} isOpen={isOpen} onClose={onClose} productSelected={productSelected} />
-           )   
-        }
-        <ModalCreateProduct key={"modal-create-product"} isOpen={createProductDisclosure.isOpen} onClose={createProductDisclosure.onClose}/>
-    </Box>
-  )
-}
+    <Box px={2}>
+      <Tabs variant="soft-rounded" colorScheme="green" fontSize={"0.8rem"}>
+        <TabList>
+          <Tab fontSize={"0.8rem"}>Precio</Tab>
+          <Tab fontSize={"0.8rem"}>Actualizacion</Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel>
+            <Flex minH={"75dvh"} flexDirection={"column"} gap={5}>
+              <div className="chakra-input-container">
+                <input
+                  className="chakra-input"
+                  ref={ref}
+                  placeholder="Escanear código de barras"
+                  inputMode="none"
+                  onChange={(e) => {
+                    handleChange(e.target.value);
+                  }}
+                  onKeyDown={(e: any) => {
+                    if (e.key === "Enter") {
+                      void handleScan(e.target.value); // Ejecutamos el escaneo al presionar Enter
+                      e.target.value = "";
+                      e.target.inputMode = "none";
+                    }
+                    return e;
+                  }}
+                />
+              </div>
+              <Flex
+                flex={"1"}
+                border="1px"
+                borderColor="gray.200"
+                borderRadius="md"
+                padding={4}
+                boxShadow="sm"
+                textAlign="center"
+                flexDirection={"column"}
+                alignItems={"center"}
+              >
+                <Text fontSize="2.5rem" fontWeight="bold">
+                  {product?.name}
+                </Text>
 
-export default PageTable
+                <Text fontSize="1.5rem" color="gray.500">
+                  {product?.unit}
+                </Text>
+
+                <Text fontSize="8rem" fontWeight="bold" color="teal.500">
+                  ${(product?.price ?? 0).toFixed(2)}
+                </Text>
+              </Flex>
+            </Flex>
+          </TabPanel>
+          <TabPanel>
+            <ProductUpdateForm />
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+    </Box>
+  );
+};
+
+export default PageTable;
