@@ -160,7 +160,9 @@ const productsSlice = createSlice({
       })
       .addCase(getProducts.fulfilled, (state, action) => {
         state.status = LoadingStates.IDLE;
-        state.productos = action.payload;
+        if (action.payload) {
+          state.productos = action.payload;
+        }
       })
       .addCase(getProducts.rejected, (state, action) => {
         state.status = LoadingStates.REJECT;

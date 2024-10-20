@@ -37,7 +37,7 @@ const ModalCreateProduct = ({ isOpen, onClose }: Props) => {
     });
   };
   const handleSubmit = () => {
-    dispatch(createProductThunk(formval));
+    dispatch(createProductThunk(formval as any));
   };
   useEffect(() => {
     if (state === LoadingStates.SUCCEEDED) {

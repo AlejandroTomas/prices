@@ -83,7 +83,10 @@ const ProductUpdateForm = () => {
   const updateProductFn = async () => {
     try {
       if (product == null) return;
-      const productUpdated = Object.assign(structuredClone(product), formData);
+      const productUpdated: any = Object.assign(
+        structuredClone(product),
+        formData
+      );
       // actualizar en local
       dispatch(updateProduct(productUpdated));
       // actualizar en permanete
