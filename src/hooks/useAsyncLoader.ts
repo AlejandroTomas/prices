@@ -48,7 +48,6 @@ const useAsyncLoader = () => {
         position: "top-left",
         ...errorOptions, // Sobrescribir opciones del toast si es necesario
       });
-      throw error; // Re-lanzar el error si se necesita manejarlo más adelante
     } finally {
       setIsLoading(false);
     }

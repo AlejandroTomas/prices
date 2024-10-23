@@ -4,12 +4,8 @@ import {
   Flex,
   FormControl,
   FormLabel,
-  Heading,
   Input,
   SimpleGrid,
-  Stack,
-  Switch,
-  Text,
   VStack,
 } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
@@ -19,7 +15,6 @@ import { getSearchResults } from "@/features/products/selector";
 import _debounce from "lodash/debounce";
 import {
   setSearchProduct,
-  updatePriceProduct,
   updateProduct,
 } from "@/features/products/proeductsSlice";
 import { updateProductInDB } from "@/functions/idb";

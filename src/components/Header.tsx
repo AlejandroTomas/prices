@@ -28,9 +28,11 @@ import LoaderFullScreen from "./LoaderFullScreen";
 import { RiFileExcel2Fill } from "react-icons/ri";
 import { createFileExcel } from "@/functions/createFileExcel";
 import { GrDocumentExcel } from "react-icons/gr";
+import FileUpload from "./FileUpload";
 
 const Header = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
+  const fileUploadDisclosure = useDisclosure();
   const { executeAsync, isLoading } = useAsyncLoader();
   const getProductSFromDB = async () => {
     const res = await fetch(`${baseUrl}/productos`, {
@@ -77,7 +79,11 @@ const Header = () => {
           >
             Generar Excel
           </MenuItem>
-          <MenuItem icon={<GrDocumentExcel />} command="⌘T" isDisabled>
+          <MenuItem
+            icon={<GrDocumentExcel />}
+            command="⌘T"
+            onClick={fileUploadDisclosure.onOpen}
+          >
             Subir Excel
           </MenuItem>
         </MenuList>
@@ -97,6 +103,10 @@ const Header = () => {
         key={"modal-create-product"}
         isOpen={isOpen}
         onClose={onClose}
+      />
+      <FileUpload
+        isOpen={fileUploadDisclosure.isOpen}
+        onClose={fileUploadDisclosure.onClose}
       />
     </Flex>
   );

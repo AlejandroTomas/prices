@@ -1,5 +1,7 @@
+"use client";
 import { Box } from "@chakra-ui/react";
-import SelectChakra from "react-select";
+import dynamic from "next/dynamic";
+const SelectChakra = dynamic(() => import("react-select"), { ssr: false });
 
 interface OptionsType {
   value: any;
@@ -53,12 +55,12 @@ export default function Select({
   menuPosition = "fixed",
 }: SelectProps): JSX.Element {
   return (
-    <Box w={width}>
+    <Box w={width} id="select-react">
       <SelectChakra
         menuPosition={menuPosition}
         isDisabled={isDisabled}
         defaultValue={defaultValue}
-        onChange={(obj) => {
+        onChange={(obj: any) => {
           if (!isMulti) {
             const { value } = obj ?? {
               value: "",
