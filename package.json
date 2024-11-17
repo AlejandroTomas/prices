@@ -11,6 +11,7 @@
   "dependencies": {
     "@chakra-ui/next-js": "^2.2.0",
     "@chakra-ui/react": "^2.8.2",
+    "@ducanh2912/next-pwa": "^10.2.9",
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
     "@reduxjs/toolkit": "^2.0.1",
@@ -39,6 +40,7 @@
     "eslint": "^8",
     "eslint-config-next": "14.0.4",
     "redux-logger": "^3.0.6",
-    "typescript": "^5"
+    "typescript": "^5",
+    "webpack": "^5.96.1"
   }
 }
