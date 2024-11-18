@@ -18,6 +18,7 @@
     "@supercharge/promise-pool": "^3.1.0",
     "@tanstack/react-table": "^8.11.6",
     "async-selector-kit": "^3.0.2",
+    "format-money-js": "^1.6.3",
     "framer-motion": "^10.18.0",
     "idb": "^8.0.0",
     "nanoid": "^5.0.7",
