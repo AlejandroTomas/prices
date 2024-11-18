@@ -74,6 +74,7 @@ export interface CreateProduct {
   img: "https://i.ibb.co/St69zhK/default.jpg";
   quantityOnStock: number;
   unit: string;
+  priceOffert: number;
 }
 
 export const baseUrl = "https://api-miscellany.onrender.com"; // "https://api-server-v2-production.up.railway.app" //"http://localhost:5000"
