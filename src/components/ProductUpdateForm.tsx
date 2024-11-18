@@ -8,7 +8,7 @@ import {
   SimpleGrid,
   VStack,
 } from "@chakra-ui/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Select from "./Select";
 import { useDispatch, useSelector } from "react-redux";
 import { getSearchResults } from "@/features/products/selector";
@@ -20,6 +20,7 @@ import {
 import { updateProductInDB } from "@/functions/idb";
 import { Product } from "@/types";
 import useAsyncLoader from "@/hooks/useAsyncLoader";
+import { useForm } from "react-hook-form";
 
 const FormGroup = ({ children }: { children: JSX.Element | JSX.Element[] }) => {
   return (
@@ -42,49 +43,31 @@ const FormGroup = ({ children }: { children: JSX.Element | JSX.Element[] }) => {
   );
 };
 
+type Inputs = {
+  name: string;
+  price: number;
+  unit: string;
+  type: string;
+  quantityOnStock: number;
+  onStock: boolean;
+  tag: string;
+  ean: string;
+  priceOffert: number;
+};
+
 const ProductUpdateForm = () => {
   const [product, setProduct] = useState<Product | null>(null); // Estado para almacenar el producto seleccionado
 
+  const {
+    register,
+    getValues,
+    reset,
+    formState: { errors },
+  } = useForm<Inputs>();
+
   const searchResults = useSelector(getSearchResults);
-  const [formData, setFormData] = useState({
-    name: "",
-    price: 0,
-    priceOffert: 0,
-    type: "",
-    quantityOnStock: 0,
-    onStock: false,
-    tag: "",
-    unit: "",
-    ean: "",
-  });
 
-  const resetForm = () => {
-    setProduct(null);
-    setFormData({
-      name: "",
-      price: 0,
-      priceOffert: 0,
-      type: "",
-      quantityOnStock: 0,
-      onStock: false,
-      tag: "",
-      unit: "",
-      ean: "",
-    });
-  };
   const dispatch = useDispatch<any>();
-
-  // Función para manejar cambios en el formulario
-  const handleChange = (e: any) => {
-    let { name, value } = e.target;
-    if (name === "price") {
-      value = Number(value);
-    }
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
 
   // Función para manejar la actualización del producto
 
@@ -92,6 +75,7 @@ const ProductUpdateForm = () => {
 
   const updateProductFn = async () => {
     if (product == null) return;
+    const formData = getValues();
     const productUpdated: any = Object.assign(
       structuredClone(product),
       formData
@@ -100,7 +84,8 @@ const ProductUpdateForm = () => {
     dispatch(updateProduct(productUpdated));
     // actualizar en permanete
     await updateProductInDB(productUpdated);
-    resetForm();
+    setProduct(null);
+    reset();
   };
 
   const handleUpdateProduct = () => {
@@ -111,8 +96,10 @@ const ProductUpdateForm = () => {
   };
 
   const handleSelectProduct = (val: any) => {
+    reset({
+      ...val,
+    });
     setProduct(val);
-    setFormData(Object.assign(formData, val));
   };
 
   const productsOptions = useMemo(
@@ -159,73 +146,57 @@ const ProductUpdateForm = () => {
           >
             <FormControl id="name">
               <FormLabel>Nombre</FormLabel>
-              <Input
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-              />
+              <Input {...register("name", { required: true })} />
             </FormControl>
 
             <FormControl id="price">
               <FormLabel>Precio</FormLabel>
               <Input
-                name="price"
                 type="number"
-                value={formData.price}
-                onChange={handleChange}
+                {...register("price", { required: true, valueAsNumber: true })}
               />
             </FormControl>
 
             <FormControl id="priceOffert">
               <FormLabel>Precio de oferta</FormLabel>
               <Input
-                name="priceOffert"
                 type="number"
-                value={formData.priceOffert}
-                onChange={handleChange}
+                {...register("priceOffert", {
+                  required: true,
+                  valueAsNumber: true,
+                })}
               />
             </FormControl>
 
             <FormControl id="type">
               <FormLabel>Tipo</FormLabel>
-              <Input
-                name="type"
-                value={formData.type}
-                onChange={handleChange}
-              />
+              <Input {...register("type")} />
             </FormControl>
             <FormControl id="quantityOnStock">
               <FormLabel>Cantidad en stock</FormLabel>
               <Input
-                name="quantityOnStock"
                 type="number"
-                value={formData.quantityOnStock}
-                onChange={handleChange}
+                {...register("quantityOnStock", {
+                  required: true,
+                  valueAsNumber: true,
+                })}
               />
             </FormControl>
 
             <FormControl id="tag">
               <FormLabel>Etiqueta</FormLabel>
-              <Input name="tag" value={formData.tag} onChange={handleChange} />
+              <Input {...register("tag")} />
             </FormControl>
 
             <FormControl id="unit">
               <FormLabel>Unidad</FormLabel>
-              <Input
-                name="unit"
-                value={formData.unit}
-                onChange={handleChange}
-              />
+              <Input {...register("unit", { required: true })} />
             </FormControl>
 
             <FormGroup>
               <FormControl id="ean">
-                <FormLabel>Ean</FormLabel>
-                <Input
-                  name="ean"
-                  value={formData.ean}
-                  onChange={handleChange}
-                />
+                <FormLabel>Código de barras</FormLabel>
+                <Input {...register("ean", { required: true })} />
               </FormControl>
             </FormGroup>
 
@@ -233,6 +204,14 @@ const ProductUpdateForm = () => {
 
             <Button colorScheme="teal" onClick={handleUpdateProduct}>
               Actualizar Producto
+            </Button>
+            <Button
+              colorScheme="red"
+              onClick={() => {
+                setProduct(null);
+              }}
+            >
+              Cancelar
             </Button>
           </SimpleGrid>
         </Box>
