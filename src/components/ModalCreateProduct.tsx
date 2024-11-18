@@ -56,7 +56,17 @@ const ModalCreateProduct = ({ isOpen, onClose }: Props) => {
         unit: formValues.unit ?? "",
       })
     );
-    reset();
+    reset({
+      ean: "",
+      name: "",
+      onStock: true,
+      price: 0,
+      priceOffert: 0,
+      quantityOnStock: 0,
+      tag: "",
+      type: "",
+      unit: "",
+    });
   };
 
   useEffect(() => {

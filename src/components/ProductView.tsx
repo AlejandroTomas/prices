@@ -96,6 +96,11 @@ const ProductView = ({ tabIndex }: Props) => {
           {product?.unit}
         </Text>
 
+        <Text fontSize="5rem" fontWeight="bold" color="gray.500" mb={0}>
+          {product?.priceOffert !== 0 && product?.priceOffert != null
+            ? `$${product?.priceOffert} /pz`
+            : ""}
+        </Text>
         <Text fontSize="8rem" fontWeight="bold" color="teal.500">
           ${(product?.price ?? 0).toFixed(2)}
         </Text>
